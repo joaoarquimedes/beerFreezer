@@ -17,10 +17,10 @@ config = configparser.ConfigParser()
 config.read(config_file, encoding='utf-8')
 
 version = config.get('VERSION', 'version')
-ther_set = config.get('GLOBAL', 'THER_SET')
-ther_var_up = config.get('GLOBAL', 'THER_VAR_UP')
-ther_var_down = config.get('GLOBAL', 'THER_VAR_DOWN')
-freezer_time_minimal_on = config.get('GLOBAL', 'FREEZER_TIME_MINIMAL_ON')
+ther_set = float(config.get('GLOBAL', 'THER_SET'))
+ther_var_up = float(config.get('GLOBAL', 'THER_VAR_UP'))
+ther_var_down = float(config.get('GLOBAL', 'THER_VAR_DOWN'))
+freezer_time_minimal_on = int(config.get('GLOBAL', 'FREEZER_TIME_MINIMAL_ON'))
 
 
 # Reconhecendo arquivos em outro diretório
@@ -36,7 +36,7 @@ from relay import freezerON
 from relay import freezerOFF
 from relay import freezerNOW # 0=desligado, 1=ligado
 
-log = "log/teste.log"
+log = "log/beerFreezer.log"
 time_to_on = "tmp/time_to_on.txt"
 
 if not os.path.exists(time_to_on): open(time_to_on, 'w+')
@@ -60,31 +60,36 @@ def getTimeNext():
     file = open(time_to_on, 'r').read()
     return file
 
+
 while True:
-    if thermometerNOW > temp_up and freezerNOW == 0 and time_now > getTimeNext():
-        message = "Temperatura em " + str(thermometerNOW) + "°C. Ligando o freezer"
+    if thermometerNOW() > temp_up and freezerNOW() == 0 and time_now > getTimeNext():
+        message = "Temperatura em " + str(thermometerNOW()) + "°C. Ligando o freezer"
         print(message, sep='')
         writeLog(message)
+        freezerON()
     
-    if thermometerNOW < temp_down and freezerNOW == 1:
-        message = "Temperatura em " + str(thermometerNOW) + "°C. Desligando o freezer"
+    if thermometerNOW() < temp_down and freezerNOW() == 1:
+        message = "Temperatura em " + str(thermometerNOW()) + "°C. Desligando o freezer. Freezer poderá ser ligado após " + str(time_next)
         print(message, sep='')
-        writeLog(message)
-        message = "O freezer poderá ser ligado somente após " + str(time_next)
-        print(message)
         writeLog(message)
         setTimeNext(str(time_next))
+        freezerOFF()
     
+    if freezerNOW() == 0:
+        freezerState = "Desligado"
+    else:
+        freezerState = "Ligado"
+   
     print (" ------------------ BeerFreezer ------------------")
-    print(" -> Temperatura setado.........................", ther_set, "°C")
-    print(" -> Variacao da temperatura para mais..........", ther_var_up, "°C")
-    print(" -> Variacao da temperatura para menos.........", ther_var_down, "°C")
-    print(" -> Calculo da temperatura para mais...........", temp_up, "°C")
-    print(" -> Calculo da temperatura para menos..........", temp_down, "°C")
-    print(" -> Temperatura do sensor......................", thermometerNOW(), "°C")
-    print(" -> Tempo limite para ligar o freezer..........", freezer_time_minimal_on, "minutos")
+    print(" -> Temperatura setado.........................", str(ther_set) + "°C")
+    print(" -> Variacao da temperatura para mais..........", str(ther_var_up) + "°C")
+    print(" -> Variacao da temperatura para menos.........", str(ther_var_down) + "°C")
+    print(" -> Calculo da temperatura para mais...........", str(temp_up) + "°C")
+    print(" -> Calculo da temperatura para menos..........", str(temp_down) + "°C")
+    print(" -> Temperatura do sensor......................", str(thermometerNOW()) + "°C")
+    print(" -> Tempo limite para ligar o freezer..........", str(freezer_time_minimal_on) + " minutos")
     print(" -> Data atual.................................", time_now)
-    print(" -> Data limite para ligar o freezer...........", time_next)
+    print(" -> Data limite para ligar o freezer...........", getTimeNext())
     print(" -> Status do freezer atual....................", freezerState)
     
     time.sleep(3)
