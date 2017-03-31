@@ -1,0 +1,24 @@
+# Arquivo de configuração
+
+[GLOBAL]
+# Qual a temperatura que deseja manter (em Celsius)?
+# Exemplo: 12.0 (doze graus celsius)
+THER_SET = 20.0
+
+# Qual o limite de diferença tolerável para a temperatura (para mais)?
+# Exemplo: 1.0 (diferença de um grau podendo variar para mais)
+THER_VAR_UP = 1.0
+
+# E qual o limite da temperatura para menos?
+THER_VAR_DOWN = 1.5
+
+# Qual o tempo (em minutos) mínimo para poder ligar o freezer depois de uma parada?
+# Este tempo irá respeitar o limite mínimo antes de ligar o equipamento calculando o valor
+# da última vez em que o mesmo foi desligado.
+# OBS.: Tempo abaixo de 6 minutos pode ser danificar o aparelho. Consulte o manual do seu freezer.
+FREEZER_TIME_MINIMAL_ON = 8
+
+
+# Versão do sistema para controle interno. Verificar o arquivo config.ini.dist para alterações.
+[VERSION]
+version = 1.0

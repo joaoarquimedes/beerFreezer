@@ -1,69 +1,88 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+import os
+import sys
 import time
 import datetime
 
-# ###################################################
-#
-# CONFIGURAÇÕES
-#
-# ###################################################
+# importando arquivo de configuração
+config_file = "config.ini"
+if not os.path.exists(config_file):
+    print("Favor, renomear o arquivo config.ini.dist para config.ini")
+    quit()
 
-# Qual a temperatura que deseja manter (em Celsius)?
-# Exemplo: 12.0 (doze graus celsius)
-TEMP_SET = 20.0
+import configparser
+config = configparser.ConfigParser()
+config.read(config_file, encoding='utf-8')
 
-# Qual o limite de diferença tolerável para a temperatura (para mais)?
-# Exemplo: 1.0 (diferença de um grau podendo variar para mais)
-TEMP_VAR_UP = 1.0
-
-# E qual o limite da temperatura para menos?
-TEMP_VAR_DOWN = 1.5
-
-# Qual o tempo (em minutos) mínimo para poder ligar o freezer depois de uma parada?
-# Este tempo irá respeitar o limite mínimo antes de ligar o equipamento calculando o valor
-# da última vez em que o mesmo foi desligado.
-# OBS.: Tempo abaixo de 6 minutos pode ser danificar o aparelho. Consulte o manual do seu freezer.
-FREEZER_TIME_LIMITE_ON = 8
+version = config.get('VERSION', 'version')
+ther_set = config.get('GLOBAL', 'THER_SET')
+ther_var_up = config.get('GLOBAL', 'THER_VAR_UP')
+ther_var_down = config.get('GLOBAL', 'THER_VAR_DOWN')
+freezer_time_minimal_on = config.get('GLOBAL', 'FREEZER_TIME_MINIMAL_ON')
 
 
-
-
-# --------- PROGRAMAÇÃO --------- #
+# Reconhecendo arquivos em outro diretório
+sys.path.insert(0, 'functions/')
 
 # TERMOSTATO
-# #################################
 import therm
 from therm import thermometerNOW
 
 # RELAY
-# ################################
 import relay
 from relay import freezerON
 from relay import freezerOFF
-from relay import freezerNOW
+from relay import freezerNOW # 0=desligado, 1=ligado
 
-temp_up = TEMP_SET + TEMP_VAR_UP
-temp_down = TEMP_SET - TEMP_VAR_DOWN
+log = "log/teste.log"
+time_to_on = "tmp/time_to_on.txt"
+
+if not os.path.exists(time_to_on): open(time_to_on, 'w+')
+
+temp_up = ther_set + ther_var_up
+temp_down = ther_set - ther_var_down
 time_now = '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
-time_next = '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now() + datetime.timedelta(minutes = FREEZER_TIME_LIMITE_ON))
+time_next = '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now() + datetime.timedelta(minutes = freezer_time_minimal_on))
+
+def writeLog(getLog):
+    file = open(log, 'a')
+    file.write(time_now+" - "+str(getLog)+"\n")
+    file.close()
+
+def setTimeNext(getTimeNext):
+    file = open(time_to_on, 'w')
+    file.write(str(getTimeNext))
+    file.close()
+
+def getTimeNext():
+    file = open(time_to_on, 'r').read()
+    return file
 
 while True:
-    if thermometerNOW() > temp_up and freezerNOW() == 0 : freezerON()
-    if thermometerNOW() < temp_down and freezerNOW() == 1 : freezerOFF()
+    if thermometerNOW > temp_up and freezerNOW == 0 and time_now > getTimeNext():
+        message = "Temperatura em " + str(thermometerNOW) + "°C. Ligando o freezer"
+        print(message, sep='')
+        writeLog(message)
     
-    if freezerNOW() == 0 : freezerState = "Desligado"
-    if freezerNOW() == 1 : freezerState = "Ligado"
+    if thermometerNOW < temp_down and freezerNOW == 1:
+        message = "Temperatura em " + str(thermometerNOW) + "°C. Desligando o freezer"
+        print(message, sep='')
+        writeLog(message)
+        message = "O freezer poderá ser ligado somente após " + str(time_next)
+        print(message)
+        writeLog(message)
+        setTimeNext(str(time_next))
     
     print (" ------------------ BeerFreezer ------------------")
-    print(" -> Temperatura setado.........................", TEMP_SET, "°C")
-    print(" -> Variacao da temperatura para mais..........", TEMP_VAR_UP, "°C")
-    print(" -> Variacao da temperatura para menos.........", TEMP_VAR_DOWN, "°C")
+    print(" -> Temperatura setado.........................", ther_set, "°C")
+    print(" -> Variacao da temperatura para mais..........", ther_var_up, "°C")
+    print(" -> Variacao da temperatura para menos.........", ther_var_down, "°C")
     print(" -> Calculo da temperatura para mais...........", temp_up, "°C")
     print(" -> Calculo da temperatura para menos..........", temp_down, "°C")
     print(" -> Temperatura do sensor......................", thermometerNOW(), "°C")
-    print(" -> Tempo limite para ligar o freezer..........", FREEZER_TIME_LIMITE_ON, "minutos")
+    print(" -> Tempo limite para ligar o freezer..........", freezer_time_minimal_on, "minutos")
     print(" -> Data atual.................................", time_now)
     print(" -> Data limite para ligar o freezer...........", time_next)
     print(" -> Status do freezer atual....................", freezerState)
