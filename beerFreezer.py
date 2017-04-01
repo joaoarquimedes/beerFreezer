@@ -60,40 +60,34 @@ def getTimeNext():
     file = open(time_to_on, 'r').read()
     return file
 
-
-while True:
-    if thermometerNOW() > temp_up and freezerNOW() == 0 and time_now > getTimeNext():
-        message = "Temperatura em " + str(thermometerNOW()) + "°C. Ligando o freezer"
-        print(message, sep='')
-        writeLog(message)
-        freezerON()
+if thermometerNOW() > temp_up and freezerNOW() == 0 and time_now > getTimeNext():
+    message = "Temperatura em " + str(thermometerNOW()) + "°C. Ligando o freezer"
+    writeLog(message)
+    freezerON()
     
-    if thermometerNOW() < temp_down and freezerNOW() == 1:
-        message = "Temperatura em " + str(thermometerNOW()) + "°C. Desligando o freezer. Freezer poderá ser ligado após " + str(time_next)
-        print(message, sep='')
-        writeLog(message)
-        setTimeNext(str(time_next))
-        freezerOFF()
+if thermometerNOW() < temp_down and freezerNOW() == 1:
+    message = "Temperatura em " + str(thermometerNOW()) + "°C. Desligando o freezer. Freezer poderá ser ligado após " + str(time_next)
+    writeLog(message)
+    setTimeNext(str(time_next))
+    freezerOFF()
     
-    if freezerNOW() == 0:
-        freezerState = "Desligado"
-    else:
-        freezerState = "Ligado"
+if freezerNOW() == 0:
+    freezerState = "Desligado"
+else:
+    freezerState = "Ligado"
    
-    print (" ------------------ BeerFreezer ------------------")
-    print(" -> Temperatura setado.........................", str(ther_set) + "°C")
-    print(" -> Variacao da temperatura para mais..........", str(ther_var_up) + "°C")
-    print(" -> Variacao da temperatura para menos.........", str(ther_var_down) + "°C")
-    print(" -> Calculo da temperatura para mais...........", str(temp_up) + "°C")
-    print(" -> Calculo da temperatura para menos..........", str(temp_down) + "°C")
-    print(" -> Temperatura do sensor......................", str(thermometerNOW()) + "°C")
-    print(" -> Tempo limite para ligar o freezer..........", str(freezer_time_minimal_on) + " minutos")
-    print(" -> Data atual.................................", time_now)
-    print(" -> Data limite para ligar o freezer...........", getTimeNext())
-    print(" -> Status do freezer atual....................", freezerState)
-    
-    time.sleep(3)
-
-
-
+print (" ----------------------- BeerFreezer ----------------------")
+print(" -> Temperatura setado.........................", str(ther_set) + "°C")
+print(" -> Variacao da temperatura para mais..........", str(ther_var_up) + "°C")
+print(" -> Variacao da temperatura para menos.........", str(ther_var_down) + "°C")
+print(" -> Calculo da temperatura para mais...........", str(temp_up) + "°C")
+print(" -> Calculo da temperatura para menos..........", str(temp_down) + "°C")
+print(" -> Temperatura do sensor......................", str(thermometerNOW()) + "°C")
+print(" -> Tempo limite para ligar o freezer..........", str(freezer_time_minimal_on) + " minutos")
+print(" -> Data atual.................................", time_now)
+print(" -> Data limite para ligar o freezer...........", getTimeNext())
+print(" -> Status do freezer atual....................", freezerState)
+print (" -----------------------------------------------------------")
+  
+time.sleep(3)
 
