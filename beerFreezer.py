@@ -38,20 +38,35 @@ from relay import freezerNOW # 0=desligado, 1=ligado
 
 log = "log/beerFreezer.log"
 time_to_on = "tmp/time_to_on.txt"
+time_freezer_last_keep_off = "tmp/time_freezer_last_keep_off.txt"
+time_freezer_last_keep_on = "tmp/time_freezer_last_keep_on.txt"
 json_report = "web/report/beerFreezer.json"
-
-if not os.path.exists(time_to_on): open(time_to_on, 'w+')
 
 calc_ther_max = ther_set + ther_var_up
 calc_ther_min = ther_set - ther_var_down
+time_hour = '{:%H:%M}'.format(datetime.datetime.now())
 time_now = '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
 time_next = '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now() + datetime.timedelta(minutes = freezer_time_minimal_on))
 
+if not os.path.exists(time_to_on): open(time_to_on, 'w+')
+if not os.path.exists(time_freezer_last_keep_off):
+    file = open(time_freezer_last_keep_off, 'w+')
+    file.write(str(time_now))
+    file.close()
+if not os.path.exists(time_freezer_last_keep_on):
+    file = open(time_freezer_last_keep_on, 'w+')
+    file.write(str(time_now))
+    file.close()
+
+# Escreve log
+# ------------------------------------------------
 def writeLog(getLog):
     file = open(log, 'a')
     file.write(time_now+" - "+str(getLog)+"\n")
     file.close()
 
+# Tempo limite para ligar o freezer
+# ------------------------------------------------
 def setTimeNext(getTimeNext):
     file = open(time_to_on, 'w')
     file.write(str(getTimeNext))
@@ -61,34 +76,74 @@ def getTimeNext():
     file = open(time_to_on, 'r').read()
     return file
 
+# Tempo que o freezer manteve desligado
+# ------------------------------------------------
+def setFreezerLastKeepOFF(time):
+    file = open(time_freezer_last_keep_off, 'w')
+    file.write(str(time))
+    file.close()
+
+def getFreezerLastKeepOFF():
+    file = open(time_freezer_last_keep_off, 'r').read()
+    return file
+
+# Tempo que o freezer manteve ligado
+# ------------------------------------------------
+def setFreezerLastKeepON(time):
+    file = open(time_freezer_last_keep_on, 'w')
+    file.write(str(time))
+    file.close()
+
+def getFreezerLastKeepON():
+    file = open(time_freezer_last_keep_on, 'r').read()
+    return file
+
+# Escreve arquivo JSON
+# ------------------------------------------------
 def setJsonReport(data):
     file = open(json_report, 'a')
     file.write(str(data)+"\n")
     file.close
 
+
+# Calcula o tempo em que o freezer está ligado/desligado
+# ------------------------------------------------
+def calcFreezerKeepState(time1, time2):
+    from datetime import datetime
+    fmt = '%Y-%m-%d %H:%M:%S'
+    t1 = datetime.strptime(time1, fmt)
+    t2 = datetime.strptime(time2, fmt)
+    return str(t1 - t2)
+
+
 if thermometerNOW() > calc_ther_max and freezerNOW() == 0 and time_now > getTimeNext():
     message = "Temperatura em " + str(thermometerNOW()) + "°C. Ligando o freezer"
     writeLog(message)
     freezerON()
-    
+    setFreezerLastKeepON(time_now)
+
 if thermometerNOW() < calc_ther_min and freezerNOW() == 1:
     message = "Temperatura em " + str(thermometerNOW()) + "°C. Desligando o freezer. Freezer poderá ser ligado após " + str(time_next)
     writeLog(message)
     setTimeNext(str(time_next))
     freezerOFF()
-    
+    setFreezerLastKeepOFF(time_now)
+
 if freezerNOW() == 0:
     freezerState = "Desligado"
+    calcFreezerLastState = calcFreezerKeepState(time_now, getFreezerLastKeepOFF())
 else:
     freezerState = "Ligado"
+    calcFreezerLastState = calcFreezerKeepState(time_now, getFreezerLastKeepON())
 
 json_data = {
-    "data" : time_now,
+    "data" : time_hour,
     "temperatura termometro" : thermometerNOW(),
     "temperatura setado" : ther_set,
     "limite temperatura alta" : calc_ther_max,
     "limite temperatura baixa" : calc_ther_min,
-    "status do freezer" : freezerState
+    "status do freezer" : freezerNOW(),
+    "tempo freezer status" : calcFreezerLastState
 }
 
 print (" ----------------------- BeerFreezer ----------------------")
@@ -102,6 +157,7 @@ print(" -> Tempo limite para ligar o freezer..........", str(freezer_time_minima
 print(" -> Data atual.................................", time_now)
 print(" -> Data limite para ligar o freezer...........", getTimeNext())
 print(" -> Status do freezer atual....................", freezerState)
+print(" -> Tempo do status (on/off)...................", calcFreezerLastState)
 print (" -----------------------------------------------------------")
 
 setJsonReport(json_data)
