@@ -2,6 +2,27 @@
 $limitPrint = 30;
 $fileJson = "report/beerFreezer.json";
 
+# Verifica se o arquivo já foi gerado
+if (! file_exists($fileJson)) {
+  echo "Arquivo JSON ainda não gerado para demonstrar relatório gráfico";
+  exit();
+}
+
+# Conta a quantidade de registros no arquivo
+$file = $fileJson;
+$linecount = 0;
+$handle = fopen($file, "r");
+while(!feof($handle)){
+  $line = fgets($handle);
+  $linecount++;
+}
+fclose($handle);
+
+if ($linecount < $limitPrint) {
+  $limitPrint = $linecount - 1;
+}
+
+# Variáveis de retorno no arquivo json
 $temperatura_termometro = array();
 $temperatura_setado = array();
 $limite_temperatura_alta = array();
@@ -9,7 +30,6 @@ $limite_temperatura_baixa = array();
 $status_do_freezer = array();
 $tempo_freezer_status = array();
 $data = array();
-
 
 # Lendo arquivo json e separando os dados
 $file = new SplFileObject($fileJson, 'r');
@@ -73,8 +93,15 @@ $result_data = json_encode(array_values($data));
   <body>
     <div class="container">
       <div class="row">
-        <h1>beerFreezer <small>beta</small></h1>
-        <div width="100" height="100">
+
+        <!-- HEADER -->
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 page-header">
+          <h1>beerFreezer</h1>
+        </div>
+        <!-- ! HEADER -->
+
+        <!-- CONTENT -->
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
           <h3>
             Freezer:
             <?php
@@ -87,8 +114,18 @@ $result_data = json_encode(array_values($data));
               }
             ?>
           </h3>
-          <canvas id="chartTemperatura"></canvas>
         </div>
+
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <div class="panel panel-default">
+            <div class="panel-heading text-center">Gráfico de temperaturas</div>
+            <div class="panel-body">
+              <canvas id="chartTemperatura"></canvas>
+            </div>
+          </div>
+        </div>
+        <!-- ! CONTENT -->
+
       </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -105,40 +142,36 @@ $result_data = json_encode(array_values($data));
           datasets: [{
             label: 'Temperatura do sensor',
             fill: false,
-            lineTension: 0.3,
+            lineTension: 0,
             data: <?php echo $result_temperatura_termometro; ?>,
             backgroundColor: "rgba(204, 51, 51, 0.25)",
             borderColor: "rgba(204, 51, 51, 0.74)"
           }, {
             label: 'Temperatura indicado',
             fill: false,
-            lineTension: 0.3,
+            lineTension: 0,
             data: <?php echo $result_temperatura_setado; ?>,
             backgroundColor: "rgba(51, 204, 102, 0.25)",
             borderColor: "rgba(51, 204, 102, 0.74)"
           }, {
             label: 'Temperatura máxima tolerável',
             fill: false,
-            lineTension: 0.3,
+            lineTension: 0,
             data: <?php echo $result_limite_temperatura_alta; ?>,
             backgroundColor: "rgba(255, 153, 51, 0.25)",
             borderColor: "rgba(255, 153, 51, 0.74)"
           }, {
             label: 'Temperatura mínima tolerável',
             fill: false,
-            lineTension: 0.3,
+            lineTension: 0,
             data: <?php echo $result_limite_temperatura_baixa; ?>,
             backgroundColor: "rgba(51, 153, 204, 0.25)",
             borderColor: "rgba(51, 153, 204, 0.74)"
           }]
         },
-        options: {
-          title: {
-            display: true,
-            text: 'Gráfico de temperaturas em graus Celsius'
-          }
-        }
+        options: {}
       });
     </script>
   </body>
 </html>
+
