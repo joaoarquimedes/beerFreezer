@@ -104,22 +104,21 @@ if (! file_exists($fileJson)) {
 
         <!-- CONTENT -->
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-          <h3>
-            Freezer:
+          <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+            <h3>
+              Freezer:
 
-            <?php if (end($result_status_do_freezer) == 0) : ?>
+              <?php if (end($result_status_do_freezer) == 0) : ?>
+              <span style="color:#cc3300;"><i class="fa fa-power-off" aria-hidden="true"></i> OFF</span>
+              <?php else : ?>
+              <span style="color:#00cc33;"><i class="fa fa-power-off" aria-hidden="true"></i> ON</span>
+              <?php endif ?>
 
-            <span style="color:#cc3300;"><i class="fa fa-power-off" aria-hidden="true"></i> OFF</span>
-            <small><span style="color:#999999;"><?=end($result_tempo_freezer_status)?></span></small>
-
-            <?php else : ?>
-
-            <span style="color:#00cc33;"><i class="fa fa-power-off" aria-hidden="true"></i> ON</span>
-            <small><span style="color:#999999;"><?=end($result_tempo_freezer_status)?></span></small>
-
-            <?php endif ?>
-
-          </h3>
+            </h3>
+          </div>
+          <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
+            <p><span style="color:#999999;"><?=end($result_tempo_freezer_status)?></span></p>
+          </div>
         </div>
 
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
