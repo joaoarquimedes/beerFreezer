@@ -1,25 +1,11 @@
 <?php
-$limitPrint = 30;
+$limitPrint = 120;
 $fileJson = "report/beerFreezer.json";
 
 # Verifica se o arquivo já foi gerado
 if (! file_exists($fileJson)) {
   echo "Arquivo JSON ainda não gerado para demonstrar relatório gráfico";
   exit();
-}
-
-# Conta a quantidade de registros no arquivo
-$file = $fileJson;
-$linecount = 0;
-$handle = fopen($file, "r");
-while(!feof($handle)){
-  $line = fgets($handle);
-  $linecount++;
-}
-fclose($handle);
-
-if ($linecount < $limitPrint) {
-  $limitPrint = $linecount - 1;
 }
 
 # Variáveis de retorno no arquivo json
@@ -33,13 +19,23 @@ $data = array();
 
 # Lendo arquivo json e separando os dados
 $file = new SplFileObject($fileJson, 'r');
-
 $file->seek(PHP_INT_MAX);
 $last_line = $file->key();
+
+if ($last_line < $limitPrint) {
+    $limitPrint = $last_line;
+}
+
 $lines = new LimitIterator($file, $last_line - $limitPrint, $last_line);
 $array = iterator_to_array($lines);
 
-foreach ($array as $value) {
+if ($limitPrint >= 30) {
+    for ($i = $last_line; $i > $last_line - $limitPrint; $i -= 2) {
+        unset($array[$i]);
+    }
+}
+
+foreach ($array as $key => $value) {
     if (!empty($value)) {
         $output = str_replace("'",'"',$value);
         $output = utf8_encode($output);
@@ -104,15 +100,19 @@ $result_data = json_encode(array_values($data));
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
           <h3>
             Freezer:
-            <?php
-              if(end($result_status_do_freezer) == 0){
-                echo '<span style="color:#cc3300;"><i class="fa fa-power-off" aria-hidden="true"></i> OFF </span>
-                  <small><span style="color:#999999;">' . end($result_tempo_freezer_status) . '</span></small>';
-              } else {
-                echo '<span style="color:#00cc33;"><i class="fa fa-power-off" aria-hidden="true"></i> ON</span>
-                  <small><span style="color:#999999;">' . end($result_tempo_freezer_status) . '</span></small>';
-              }
-            ?>
+
+            <?php if (end($result_status_do_freezer) == 0) : ?>
+
+            <span style="color:#cc3300;"><i class="fa fa-power-off" aria-hidden="true"></i> OFF</span>
+            <small><span style="color:#999999;"><?=end($result_tempo_freezer_status)?></span></small>
+
+            <?php else : ?>
+
+            <span style="color:#00cc33;"><i class="fa fa-power-off" aria-hidden="true"></i> ON</span>
+            <small><span style="color:#999999;"><?=end($result_tempo_freezer_status)?></span></small>
+
+            <?php endif ?>
+
           </h3>
         </div>
 
