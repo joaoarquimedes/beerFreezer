@@ -103,7 +103,7 @@ if (! file_exists($fileJson)) {
            <h1>beerFreezer</h1>
           </div>
         </div>
-        <!-- ! HEADER -->
+        <!-- / HEADER -->
 
 
 
@@ -117,7 +117,7 @@ if (! file_exists($fileJson)) {
             <p style="font-size: 72px; color: #3b3a39;"><i class="fa fa-frown-o" aria-hidden="true"></i></p>
             <p style="font-size: 18px; color: #3b3a39;"><?="$alert"?></p>
           </div>
-          <!-- ! Alert -->
+          <!-- / Alert -->
 
           <?php else : ?>
 
@@ -126,14 +126,14 @@ if (! file_exists($fileJson)) {
               <h3>
                 Freezer:
                 <?php if (end($result_status_do_freezer) == 0) : ?>
-                <span style="color:#cc3300;"><i class="fa fa-power-off" aria-hidden="true"></i> OFF</span>
+                <span style="color:#cc3300;"><i class="fa fa-power-off" aria-hidden="true"></i> OFF <small><?=end($result_tempo_freezer_status)?></small></span>
                 <?php else : ?>
-                <span style="color:#00cc33;"><i class="fa fa-power-off" aria-hidden="true"></i> ON</span>
+                <span style="color:#00cc33;"><i class="fa fa-power-off" aria-hidden="true"></i> ON <small><?=end($result_tempo_freezer_status)?></small></span>
                 <?php endif ?>
               </h3>
             </div>
-            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
-              <p><span style="color:#999999;"><?=end($result_tempo_freezer_status)?></span></p>
+            <div class="col-lg-1 col-md-9 col-sm-9 col-xs-9">
+              <canvas id="chartONOFF" style="width: 30px;height: 23px;"></canvas>
             </div>
           </div>
 
@@ -148,7 +148,7 @@ if (! file_exists($fileJson)) {
 
           <?php endif ?>
         </div>
-        <!-- ! CONTENT -->
+        <!-- / CONTENT -->
       </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -195,6 +195,31 @@ if (! file_exists($fileJson)) {
         options: {}
       });
     </script>
+
+    <script>
+      var ctx = document.getElementById("chartONOFF");
+      var chartONOFF = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ["ON", "OFF"],
+          datasets: [{
+            data: [<?=$countON?>, <?=$countOFF?>],
+            backgroundColor: [
+              "rgba(51, 204, 102, 0.56)",
+              "rgba(122, 127, 138, 0.56)",
+            ],
+            hoverBackgroundColor: [
+              "rgba(51, 204, 102, 0.74)",
+              "rgba(122, 127, 138, 0.74)",
+            ]
+          }]
+        },
+        options: {
+          legend: {
+            display: false,
+          }
+        }
+      });
+    </script>
   </body>
 </html>
-
