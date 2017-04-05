@@ -36,27 +36,33 @@ if (! file_exists($fileJson)) {
 
   $countON = 0;
   $countOFF = 0;
+  $countPrevious = null;
+  $countCurrent = null;
 
   foreach ($array as $key => $value) {
-      if (!empty($value)) {
-          $output = str_replace("'",'"',$value);
-          $output = utf8_encode($output);
-          $json = json_decode($output);
+    if (!empty($value)) {
+      $output = str_replace("'",'"',$value);
+      $output = utf8_encode($output);
+      $json = json_decode($output);
 
-          array_push($temperatura_termometro, $json->{'temperatura termometro'});
-          array_push($temperatura_setado, $json->{'temperatura setado'});
-          array_push($limite_temperatura_alta, $json->{'limite temperatura alta'});
-          array_push($limite_temperatura_baixa, $json->{'limite temperatura baixa'});
-          array_push($status_do_freezer, $json->{'status do freezer'});
-          array_push($tempo_freezer_status, $json->{'tempo freezer status'});
-          array_push($data, $json->{'data'});
+      array_push($temperatura_termometro, $json->{'temperatura termometro'});
+      array_push($temperatura_setado, $json->{'temperatura setado'});
+      array_push($limite_temperatura_alta, $json->{'limite temperatura alta'});
+      array_push($limite_temperatura_baixa, $json->{'limite temperatura baixa'});
+      array_push($status_do_freezer, $json->{'status do freezer'});
+      array_push($tempo_freezer_status, $json->{'tempo freezer status'});
+      array_push($data, $json->{'data'});
 
-          if ($json->{'status do freezer'} == 1) {
-            $countON++;
-          } elseif ($json->{'status do freezer'} == 0) {
-            $countOFF++;
-          }
+      $countCurrent = $json->{'status do freezer'};
+      if ($countCurrent != $countPrevious) {
+        if ($json->{'status do freezer'} == 0) {
+          $countOFF++;
+        } else {
+          $countON++;
+        }
       }
+      $countPrevious = $countCurrent;
+    }
   }
 
   $result_temperatura_termometro = json_encode(array_values($temperatura_termometro));
@@ -122,18 +128,15 @@ if (! file_exists($fileJson)) {
           <?php else : ?>
 
           <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
               <h3>
                 Freezer:
                 <?php if (end($result_status_do_freezer) == 0) : ?>
-                <span style="color:#cc3300;"><i class="fa fa-power-off" aria-hidden="true"></i> OFF <small><?=end($result_tempo_freezer_status)?></small></span>
+                <span style="color:#cc3300;"><i class="fa fa-power-off" aria-hidden="true"></i> OFF <small><?=end($result_tempo_freezer_status)." ($countOFF)x"?></small></span>
                 <?php else : ?>
-                <span style="color:#00cc33;"><i class="fa fa-power-off" aria-hidden="true"></i> ON <small><?=end($result_tempo_freezer_status)?></small></span>
+                <span style="color:#00cc33;"><i class="fa fa-power-off" aria-hidden="true"></i> ON <small><?=end($result_tempo_freezer_status)." ($countON)x"?></small></span>
                 <?php endif ?>
               </h3>
-            </div>
-            <div class="col-lg-1 col-md-9 col-sm-9 col-xs-9">
-              <canvas id="chartONOFF" style="width: 30px;height: 23px;"></canvas>
             </div>
           </div>
 
@@ -193,32 +196,6 @@ if (! file_exists($fileJson)) {
           }]
         },
         options: {}
-      });
-    </script>
-
-    <script>
-      var ctx = document.getElementById("chartONOFF");
-      var chartONOFF = new Chart(ctx, {
-        type: 'pie',
-        data: {
-          labels: ["ON", "OFF"],
-          datasets: [{
-            data: [<?=$countON?>, <?=$countOFF?>],
-            backgroundColor: [
-              "rgba(51, 204, 102, 0.56)",
-              "rgba(122, 127, 138, 0.56)",
-            ],
-            hoverBackgroundColor: [
-              "rgba(51, 204, 102, 0.74)",
-              "rgba(122, 127, 138, 0.74)",
-            ]
-          }]
-        },
-        options: {
-          legend: {
-            display: false,
-          }
-        }
       });
     </script>
   </body>
