@@ -91,6 +91,14 @@ if (! file_exists($fileJson)) {
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
+    <!-- Google Fonts -->
+    <!-- font-family: 'PT Mono', monospace; -->
+    <link href="https://fonts.googleapis.com/css?family=PT+Mono" rel="stylesheet">
+    <!-- font-family: 'Scope One', serif; -->
+    <link href="https://fonts.googleapis.com/css?family=Scope+One" rel="stylesheet">
+    <!-- font-family: 'Crete Round', serif; -->
+    <link href="https://fonts.googleapis.com/css?family=Crete+Round" rel="stylesheet">
+
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -102,55 +110,63 @@ if (! file_exists($fileJson)) {
     <div class="container">
       <div class="row">
 
-
         <!-- HEADER -->
-        <div class="row">
-          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 page-header">
-           <h1>beerFreezer</h1>
+        <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
+          <div style="border-bottom: solid 1px #cecece; font-family: 'Scope One', serif;">
+            <h1>beerFreezer</h1>
           </div>
-        </div>
-        <!-- / HEADER -->
 
-
-
-        <!-- CONTENT -->
-        <div class="row">
-
-          <!-- Alert -->
-          <?php if ($alert != null) : ?>
-          <div class="col-lg-2 col-md-2"></div>
-          <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12 text-center">
-            <p style="font-size: 72px; color: #3b3a39;"><i class="fa fa-frown-o" aria-hidden="true"></i></p>
-            <p style="font-size: 18px; color: #3b3a39;"><?="$alert"?></p>
-          </div>
-          <!-- / Alert -->
-
-          <?php else : ?>
-
-          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+          <!-- Bar left -->
+          <div>
+            <div>
               <h3>
-                Freezer:
                 <?php if (end($result_status_do_freezer) == 0) : ?>
-                <span style="color:#cc3300;"><i class="fa fa-power-off" aria-hidden="true"></i> OFF <small><?=end($result_tempo_freezer_status)." ($countOFF)x"?></small></span>
+                <span style="color:#cc3300; font-size: 30px; font-family: 'Crete Round', serif;"><i class="fa fa-power-off" aria-hidden="true"></i> OFF <small>
+                <small style="margin-left: 10px; font-size: 13px; font-family: 'PT Mono', monospace;">
+                <i class="fa fa-clock-o" aria-hidden="true"></i> <?=end($result_tempo_freezer_status)." ($countOFF)x"?></small>
                 <?php else : ?>
-                <span style="color:#00cc33;"><i class="fa fa-power-off" aria-hidden="true"></i> ON <small><?=end($result_tempo_freezer_status)." ($countON)x"?></small></span>
+                <span style="color:#00cc33; font-size: 30px; font-family: 'Crete Round', serif;"><i class="fa fa-power-off" aria-hidden="true"></i> ON </span>
+                <small style="margin-left: 10px; font-size: 13px; font-family: 'PT Mono', monospace;">
+                <i class="fa fa-clock-o" aria-hidden="true"></i> <?=end($result_tempo_freezer_status)." ($countON)x"?></small>
                 <?php endif ?>
               </h3>
             </div>
           </div>
+          <!-- / Bar left -->
+        </div>
 
-          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <div class="panel panel-default">
-              <div class="panel-heading text-center">Gráfico de temperaturas</div>
-              <div class="panel-body">
-                <canvas id="chartTemperatura"></canvas>
-              </div>
+        <!-- Bar right -->
+        <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12">
+          <p>OK</p>
+        </div>
+        <!-- / Bar right -->
+        <!-- / HEADER -->
+
+
+        <!-- CONTENT -->
+
+        <!-- Alert -->
+        <?php if ($alert != null) : ?>
+        <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12 text-center">
+          <p style="font-size: 72px; color: #3b3a39;"><i class="fa fa-frown-o" aria-hidden="true"></i></p>
+          <p style="font-size: 18px; color: #3b3a39;"><?="$alert"?></p>
+        </div>
+        <!-- / Alert -->
+
+        <?php else : ?>
+
+        <!-- Chart Principal -->
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="margin-top: 20px;">
+          <div class="panel panel-default">
+            <div class="panel-heading text-center">Gráfico de temperaturas</div>
+            <div class="panel-body">
+              <canvas id="chartTemperatura"></canvas>
             </div>
           </div>
-
-          <?php endif ?>
         </div>
+        <!-- / Chart Principal -->
+
+        <?php endif ?>
         <!-- / CONTENT -->
       </div>
     </div>
