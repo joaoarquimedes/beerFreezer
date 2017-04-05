@@ -5,7 +5,7 @@ $alert = null;
 
 # Verifica se o arquivo já foi gerado
 if (! file_exists($fileJson)) {
-  $alert = "Arquivo $fileJson ainda não gerado para demonstrar relatório gráfico";
+  $alert = "Arquivo <code>$fileJson</code> ainda não gerado para demonstração de relatório gráfico. Verifique se o comando <code>python3 beerFreezer.py</code> foi executado com sucesso.";
 } else {
   # Lendo arquivo json e separando os dados
   $file = new SplFileObject($fileJson, 'r');
@@ -96,50 +96,59 @@ if (! file_exists($fileJson)) {
     <div class="container">
       <div class="row">
 
+
         <!-- HEADER -->
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 page-header">
-          <h1>beerFreezer</h1>
+        <div class="row">
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 page-header">
+           <h1>beerFreezer</h1>
+          </div>
         </div>
         <!-- ! HEADER -->
 
+
+
         <!-- CONTENT -->
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-          <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-            <h3>
-              Freezer:
+        <div class="row">
 
-              <?php if (end($result_status_do_freezer) == 0) : ?>
-              <span style="color:#cc3300;"><i class="fa fa-power-off" aria-hidden="true"></i> OFF</span>
-              <?php else : ?>
-              <span style="color:#00cc33;"><i class="fa fa-power-off" aria-hidden="true"></i> ON</span>
-              <?php endif ?>
-
-            </h3>
+          <!-- Alert -->
+          <?php if ($alert != null) : ?>
+          <div class="col-lg-2 col-md-2"></div>
+          <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12 text-center">
+            <p style="font-size: 72px; color: #3b3a39;"><i class="fa fa-frown-o" aria-hidden="true"></i></p>
+            <p style="font-size: 18px; color: #3b3a39;"><?="$alert"?></p>
           </div>
-          <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
-            <p><span style="color:#999999;"><?=end($result_tempo_freezer_status)?></span></p>
-          </div>
-        </div>
-
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-
-          <?php if ($alert == null) : ?>
-
-          <div class="panel panel-default">
-            <div class="panel-heading text-center">Gráfico de temperaturas</div>
-            <div class="panel-body">
-              <canvas id="chartTemperatura"></canvas>
-            </div>
-          </div>
+          <!-- ! Alert -->
 
           <?php else : ?>
 
-          <div class="alert alert-danger text-center" role="alert"><i class="fa fa-exclamation-circle" aria-hidden="true"></i> <?="$alert"?></div>
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+              <h3>
+                Freezer:
+                <?php if (end($result_status_do_freezer) == 0) : ?>
+                <span style="color:#cc3300;"><i class="fa fa-power-off" aria-hidden="true"></i> OFF</span>
+                <?php else : ?>
+                <span style="color:#00cc33;"><i class="fa fa-power-off" aria-hidden="true"></i> ON</span>
+                <?php endif ?>
+              </h3>
+            </div>
+            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
+              <p><span style="color:#999999;"><?=end($result_tempo_freezer_status)?></span></p>
+            </div>
+          </div>
+
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading text-center">Gráfico de temperaturas</div>
+              <div class="panel-body">
+                <canvas id="chartTemperatura"></canvas>
+              </div>
+            </div>
+          </div>
 
           <?php endif ?>
         </div>
         <!-- ! CONTENT -->
-
       </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
