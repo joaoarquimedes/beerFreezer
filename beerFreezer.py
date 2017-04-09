@@ -5,25 +5,58 @@ import os
 import sys
 import time
 import datetime
+import ConfigParser
 
-# importando arquivo de configuração
+
+
+# Importando arquivo de configuração e setando a classe
+# -------------------------------------------------------------------------------
 config_file = "config.ini"
 if not os.path.exists(config_file):
     print("Favor, renomear o arquivo config.ini.dist para config.ini")
     quit()
 
-import ConfigParser
-config = ConfigParser.ConfigParser()
-config.read(config_file)
+configParser = ConfigParser.ConfigParser()
+configParser.read(config_file)
 
-version = config.get('VERSION', 'version')
-ther_set = float(config.get('GLOBAL', 'THER_SET'))
-ther_var_up = float(config.get('GLOBAL', 'THER_VAR_UP'))
-ther_var_down = float(config.get('GLOBAL', 'THER_VAR_DOWN'))
-freezer_time_minimal_on = int(config.get('GLOBAL', 'FREEZER_TIME_MINIMAL_ON'))
+class Config():
+    def setVersion(self, version):
+        self.version = version
+    def getVersion(self):
+        return self.version
+
+    def setThermometerSet(self, thermometerSet):
+        self.thermometerSet = thermometerSet
+    def getThermometerSet(self):
+        return self.thermometerSet
+
+    def setThermometerMax(self, thermometerMax):
+        self.thermometerMax = thermometerMax
+    def getThermometerMax(self):
+        return self.thermometerMax + self.getThermometerSet()
+
+    def setThermometerMin(self, thermometerMin):
+        self.thermometerMin = thermometerMin
+    def getThermometerMin(self):
+        return self.getThermometerSet() - self.thermometerMin
+
+    def setFreezerTimeMinON(self, freezerTimeMinON):
+        self.freezerTimeMinON = freezerTimeMinON
+    def getFreezerTimeMinON(self):
+        return self.freezerTimeMinON
+
+
+conf = Config()
+conf.setVersion(configParser.get('VERSION', 'version'))
+conf.setThermometerSet(float(configParser.get('GLOBAL', 'THER_SET')))
+conf.setThermometerMax(float(configParser.get('GLOBAL', 'THER_VAR_UP')))
+conf.setThermometerMin(float(configParser.get('GLOBAL', 'THER_VAR_DOWN')))
+conf.setFreezerTimeMinON(int(configParser.get('GLOBAL', 'FREEZER_TIME_MINIMAL_ON')))
+
 
 
 # Reconhecendo arquivos em outro diretório
+# -------------------------------------------------------------------------------
 sys.path.insert(0, 'functions/')
 
 # TERMOSTATO
@@ -53,170 +86,173 @@ mylcd = RPi_I2C_driver.lcd()
 # mylcd.backlight(0)
 
 mylcd.lcd_clear()
-mylcd.lcd_display_string("   beerFreezer  ", 1)
-mylcd.lcd_display_string(" Bem vindo!  =) ", 2)
-sleep(0.5)
+mylcd.lcd_display_string("  beerFreezer   ", 1)
+mylcd.lcd_display_string("  Starting...   ", 2)
+sleep(1.5)
 
 
+
+# Setando arquivos temporários e de log's
+# -------------------------------------------------------------------------------
 log = "log/beerFreezer.log"
-time_to_on = "tmp/time_to_on.txt"
-time_freezer_last_keep_off = "tmp/time_freezer_last_keep_off.txt"
-time_freezer_last_keep_on = "tmp/time_freezer_last_keep_on.txt"
 json_report = "web/report/beerFreezer.json"
 
-calc_ther_max = ther_set + ther_var_up
-calc_ther_min = ther_set - ther_var_down
-time_day = '{:%d/%m/%Y}'.format(datetime.datetime.now())
-time_hour = '{:%H:%M}'.format(datetime.datetime.now())
-time_now = '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
-time_next = '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now() + datetime.timedelta(minutes = freezer_time_minimal_on))
 
-if not os.path.exists(time_to_on): open(time_to_on, 'w+')
 
-if not os.path.exists(time_freezer_last_keep_off):
-    file = open(time_freezer_last_keep_off, 'w+')
-    file.write(str(time_now))
-    file.close()
+# Setando variáveis de tempo
+# -------------------------------------------------------------------------------
+class Time():
+    def getTimeNow(self):
+        return '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
 
-if not os.path.exists(time_freezer_last_keep_on):
-    file = open(time_freezer_last_keep_on, 'w+')
-    file.write(str(time_now))
-    file.close()
+    def getTimeDay(self):
+        return '{:%d/%m/%Y}'.format(datetime.datetime.now())
 
+    def getTimeHour(self):
+        return '{:%H:%M:%S}'.format(datetime.datetime.now())
+
+    def setTimeNextFreezerON(self, timeNextFreezerON):
+        self.timeNextFreezerON = '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now() + datetime.timedelta(minutes = timeNextFreezerON))
+    def getTimeNextFreezerON(self):
+        return self.timeNextFreezerON
+
+    def getCalcFreezerKeepState(self, time):
+        from datetime import datetime
+        fmt = '%Y-%m-%d %H:%M:%S'
+        t1 = datetime.strptime(self.getTimeNow(), fmt)
+        t2 = datetime.strptime(time, fmt)
+        return str(t1 - t2)
+
+    def setTimeNextFreezerKeepONOFF(self):
+        self.timeNextFreezerKeepONOFF = self.getTimeNow()
+    def getTimeNextFreezerKeepONOFF(self):
+        return self.getCalcFreezerKeepState(self.timeNextFreezerKeepONOFF)
+
+    def setManyTimesFreezerON(self, n):
+        self.manyTimesFreezerON = n
+    def getManyTimesFreezerON(self):
+        return self.manyTimesFreezerON
+
+    def setManyTimesFreezerOFF(self, n):
+        self.manyTimesFreezerOFF = n
+    def getManyTimesFreezerOFF(self):
+        return self.manyTimesFreezerOFF
+
+mytime = Time()
+mytime.setTimeNextFreezerON(0)
+mytime.setTimeNextFreezerKeepONOFF()
+mytime.setManyTimesFreezerON(0)
+mytime.setManyTimesFreezerOFF(0)
+
+
+
+# Definindo funções para escrita em arquivo
+# -------------------------------------------------------------------------------
 # Escreve log
-# ------------------------------------------------
 def writeLog(getLog):
     file = open(log, 'a')
-    file.write(time_now+" - "+str(getLog)+"\n")
+    file.write(mytime.getTimeNow() + " - " + str(getLog) + "\n")
     file.close()
-
-# Tempo limite para ligar o freezer
-# ------------------------------------------------
-def setTimeNext(getTimeNext):
-    file = open(time_to_on, 'w')
-    file.write(str(getTimeNext))
-    file.close()
-
-def getTimeNext():
-    file = open(time_to_on, 'r').read()
-    return file
-
-# Tempo que o freezer manteve desligado
-# ------------------------------------------------
-def setFreezerLastKeepOFF(time):
-    file = open(time_freezer_last_keep_off, 'w')
-    file.write(str(time))
-    file.close()
-
-def getFreezerLastKeepOFF():
-    file = open(time_freezer_last_keep_off, 'r').read()
-    return file
-
-# Tempo que o freezer manteve ligado
-# ------------------------------------------------
-def setFreezerLastKeepON(time):
-    file = open(time_freezer_last_keep_on, 'w')
-    file.write(str(time))
-    file.close()
-
-def getFreezerLastKeepON():
-    file = open(time_freezer_last_keep_on, 'r').read()
-    return file
 
 # Escreve arquivo JSON
-# ------------------------------------------------
 def setJsonReport(data):
     file = open(json_report, 'a')
-    file.write(str(data)+"\n")
+    file.write(str(data) + "\n")
     file.close
 
-# Calcula o tempo em que o freezer está ligado/desligado
-# ------------------------------------------------
-def calcFreezerKeepState(time1, time2):
-    from datetime import datetime
-    fmt = '%Y-%m-%d %H:%M:%S'
-    t1 = datetime.strptime(time1, fmt)
-    t2 = datetime.strptime(time2, fmt)
-    return str(t1 - t2)
 
 
+# Freezer Engine
+# -------------------------------------------------------------------------------
 try:
+    countON = 0
+    countOFF = 0
     while True:
-        if thermometerNOW() > calc_ther_max and freezerNOW() == 0 and time_now > getTimeNext():
-            message = "Temperatura em " + str(thermometerNOW()) + "°C. Ligando o freezer"
-            writeLog(message)
+        if thermometerNOW() > conf.getThermometerMax() and freezerNOW() == 0 and mytime.getTimeNow() > mytime.getTimeNextFreezerON():
             freezerON()
-            setFreezerLastKeepON(time_now)
-
-        if thermometerNOW() < calc_ther_min and freezerNOW() == 1:
-            message = "Temperatura em " + str(thermometerNOW()) + "°C. Desligando o freezer. Freezer poderá ser ligado após " + str(time_next)
+            mytime.setTimeNextFreezerKeepONOFF()
+            countON += 1
+            mytime.setManyTimesFreezerON(countON)
+            message = "Temperatura em " + str(thermometerNOW()) + "°C. Freezer ligado"
             writeLog(message)
-            setTimeNext(str(time_next))
+
+        if thermometerNOW() < conf.getThermometerMin() and freezerNOW() == 1:
+            mytime.setTimeNextFreezerON(conf.getFreezerTimeMinON())
             freezerOFF()
-            setFreezerLastKeepOFF(time_now)
+            countOFF += 1
+            mytime.setManyTimesFreezerOFF(countOFF)
+            mytime.setTimeNextFreezerKeepONOFF()
+            message = "Temperatura em " + str(thermometerNOW()) + "°C. Freezer desligado. Freezer poderá ser ligado após " + str(mytime.getTimeNextFreezerON())
+            writeLog(message)
 
         if freezerNOW() == 0:
             freezerState = "OFF"
-            calcFreezerLastState = calcFreezerKeepState(time_now, getFreezerLastKeepOFF())
+            countONOFF = mytime.getManyTimesFreezerOFF()
         else:
             freezerState = "ON"
-            calcFreezerLastState = calcFreezerKeepState(time_now, getFreezerLastKeepON())
+            countONOFF = mytime.getManyTimesFreezerON()
 
         json_data = {
-            "data" : time_hour,
+            "data" : mytime.getTimeHour(),
             "temperatura termometro" : thermometerNOW(),
-            "temperatura setado" : ther_set,
-            "limite temperatura alta" : calc_ther_max,
-            "limite temperatura baixa" : calc_ther_min,
+            "temperatura setado" : conf.getThermometerSet(),
+            "limite temperatura alta" : conf.getThermometerMax(),
+            "limite temperatura baixa" : conf.getThermometerMin(),
             "status do freezer" : freezerNOW(),
-            "tempo freezer status" : calcFreezerLastState
+            "tempo freezer status" : mytime.getTimeNextFreezerKeepONOFF()
         }
 
-
         print (" ----------------------- BeerFreezer ----------------------")
-        print(" -> Temperatura setado.........................", str(ther_set))
-        print(" -> Variacao da temperatura para mais..........", str(ther_var_up))
-        print(" -> Variacao da temperatura para menos.........", str(ther_var_down))
-        print(" -> Calculo da temperatura para mais...........", str(calc_ther_max))
-        print(" -> Calculo da temperatura para menos..........", str(calc_ther_min))
+        print(" -> Temperatura setado.........................", str(conf.getThermometerSet()))
+        print(" -> Variacao da temperatura para mais..........", str(conf.getThermometerMax()))
+        print(" -> Variacao da temperatura para menos.........", str(conf.getThermometerMin()))
         print(" -> Temperatura do sensor......................", str(thermometerNOW()))
-        print(" -> Tempo limite para ligar o freezer..........", str(freezer_time_minimal_on))
-        print(" -> Data atual.................................", time_now)
-        print(" -> Data limite para ligar o freezer...........", getTimeNext())
-        print(" -> Status do freezer atual....................", freezerState)
-        print(" -> Tempo do status (on/off)...................", calcFreezerLastState)
+        print(" -> Tempo limite para ligar o freezer..........", str(conf.getFreezerTimeMinON()))
+        print(" -> Data atual.................................", str(mytime.getTimeNow()))
+        print(" -> Data limite para ligar o freezer...........", str(mytime.getTimeNextFreezerON()))
+        print(" -> Status do freezer atual....................", str(freezerState))
+        print(" -> Tempo do status (on/off)...................", str(mytime.getTimeNextFreezerKeepONOFF()))
+        print(" -> Quantas vezes ligou/desligou...............", str(countONOFF))
         print (" -----------------------------------------------------------")
+
         # Exportando dados para o Json
         setJsonReport(json_data)
 
         # Escrevendo no display        
         mylcd.lcd_clear()
-        loop = 20
+        loop = 25
         for x in range(0, loop):
-            mylcd.lcd_display_string("   Termometro  ", 1)
-            mylcd.lcd_display_string("   " + str(thermometerNOW()) + " Graus", 2)
+            mylcd.lcd_display_string("  Thermometer  ", 1)
+            mylcd.lcd_display_string("     " + str(thermometerNOW()) + "\337C", 2)
             sleep(2)
 
         mylcd.lcd_clear()
-        loop = 10
+        loop = 12
         for x in range(0, loop):
-            m2 = '{:%H:%M:%S}'.format(datetime.datetime.now())
-            mylcd.lcd_display_string(str(time_day), 1)
-            mylcd.lcd_display_string('{:%H:%M:%S}'.format(datetime.datetime.now()), 2)
+            mylcd.lcd_display_string("   " + str(mytime.getTimeDay()), 1)
+            mylcd.lcd_display_string("    " + str(mytime.getTimeHour()), 2)
             sleep(1)
 
         mylcd.lcd_clear()
-        m1 = "Freezer: " + str(freezerState)
-        m2 = "Em: " + str(calcFreezerLastState)
-        mylcd.lcd_display_string(str(m1), 1)
-        mylcd.lcd_display_string(str(m2), 2)
-        sleep(4)
+        loop = 7
+        for x in xrange(0,loop):
+            mylcd.lcd_display_string("Freezer: " + str(freezerState) + "  " + str(countONOFF) + "x", 1)
+            mylcd.lcd_display_string("Em: " + str(mytime.getTimeNextFreezerKeepONOFF()), 2)
+            sleep(1)
+
+        if thermometerNOW() > conf.getThermometerMax() and freezerNOW() == 0 and mytime.getTimeNow() < mytime.getTimeNextFreezerON():
+            mylcd.lcd_display_string("Allow Freezer ON" + str(freezerState), 1)
+            mylcd.lcd_display_string(str(mytime.getTimeNextFreezerON()), 2)
+            sleep(5)
+
+        mylcd.lcd_clear()
+        mylcd.lcd_display_string("Reload...", 1)
 
 except KeyboardInterrupt: # If there is a KeyboardInterrupt (when you press ctrl+c), exit the program and cleanup
-    print(" .... Saindo do beeFreezer!")
+    print(" .... Stopping beeFreezer!")
     mylcd.lcd_clear()
-    mylcd.lcd_display_string("Encerrando...", 1)
+    mylcd.lcd_display_string("Stopping...", 1)
     sleep(2)
     mylcd.lcd_clear()
     mylcd.backlight(0)
-
+    freezerOFF()

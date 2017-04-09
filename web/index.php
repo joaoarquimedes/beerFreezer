@@ -1,11 +1,11 @@
 <?php
-$limitPrint = 120;
+$limitPrint = 60;
 $fileJson = "report/beerFreezer.json";
 $alert = null;
 
 # Verifica se o arquivo já foi gerado
 if (! file_exists($fileJson)) {
-  $alert = "Arquivo <code>$fileJson</code> ainda não gerado para demonstração de relatório gráfico. Verifique se o comando <code>python3 beerFreezer.py</code> foi executado com sucesso.";
+  $alert = "Arquivo <code>$fileJson</code> ainda não gerado para demonstração de relatório gráfico. Verifique se o comando <code>python beerFreezer.py</code> foi executado com sucesso.";
 } else {
   # Lendo arquivo json e separando os dados
   $file = new SplFileObject($fileJson, 'r');
@@ -137,7 +137,7 @@ if (! file_exists($fileJson)) {
 
         <!-- Bar right -->
         <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12">
-          <p>OK</p>
+          <p></p>
         </div>
         <!-- / Bar right -->
         <!-- / HEADER -->
@@ -147,7 +147,7 @@ if (! file_exists($fileJson)) {
 
         <!-- Alert -->
         <?php if ($alert != null) : ?>
-        <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12 text-center">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center">
           <p style="font-size: 72px; color: #3b3a39;"><i class="fa fa-frown-o" aria-hidden="true"></i></p>
           <p style="font-size: 18px; color: #3b3a39;"><?="$alert"?></p>
         </div>
