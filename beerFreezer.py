@@ -237,7 +237,7 @@ try:
         loop = 7
         for x in xrange(0,loop):
             mylcd.lcd_display_string("Freezer: " + str(freezerState) + "  " + str(countONOFF) + "x", 1)
-            mylcd.lcd_display_string("Em: " + str(mytime.getTimeNextFreezerKeepONOFF()), 2)
+            mylcd.lcd_display_string(str(mytime.getTimeNextFreezerKeepONOFF()), 2)
             sleep(1)
 
         if thermometerNOW() > conf.getThermometerMax() and freezerNOW() == 0 and mytime.getTimeNow() < mytime.getTimeNextFreezerON():
@@ -256,3 +256,4 @@ except KeyboardInterrupt: # If there is a KeyboardInterrupt (when you press ctrl
     mylcd.lcd_clear()
     mylcd.backlight(0)
     freezerOFF()
+
