@@ -4,6 +4,7 @@
 import os
 import sys
 import time
+import signal
 import datetime
 import ConfigParser
 
@@ -162,6 +163,25 @@ def setJsonReport(data):
 
 
 
+# Finalizando processo caso receba sinal "kill"
+# -------------------------------------------------------------------------------
+def set_exit_handler(func):
+    signal.signal(signal.SIGTERM, func)
+def on_exit(sig, func=None):
+    print(" .... Stopping beeFreezer!")
+    mylcd.lcd_clear()
+    mylcd.lcd_display_string("Stopping...", 1)
+    sleep(2)
+    mylcd.lcd_clear()
+    mylcd.backlight(0)
+    freezerOFF()
+    sys.exit(0)
+
+if __name__ == "__main__":
+    set_exit_handler(on_exit)
+
+
+
 # Freezer Engine
 # -------------------------------------------------------------------------------
 try:
@@ -202,7 +222,8 @@ try:
             "tempo freezer status" : mytime.getTimeNextFreezerKeepONOFF()
         }
 
-        print (" ----------------------- BeerFreezer ----------------------")
+        print()
+        print(" ----------------------- BeerFreezer ----------------------")
         print(" -> Temperatura setado.........................", str(conf.getThermometerSet()))
         print(" -> Variacao da temperatura para mais..........", str(conf.getThermometerMax()))
         print(" -> Variacao da temperatura para menos.........", str(conf.getThermometerMin()))
@@ -213,7 +234,7 @@ try:
         print(" -> Status do freezer atual....................", str(freezerState))
         print(" -> Tempo do status (on/off)...................", str(mytime.getTimeNextFreezerKeepONOFF()))
         print(" -> Quantas vezes ligou/desligou...............", str(countONOFF))
-        print (" -----------------------------------------------------------")
+        print(" -----------------------------------------------------------")
 
         # Exportando dados para o Json
         setJsonReport(json_data)
