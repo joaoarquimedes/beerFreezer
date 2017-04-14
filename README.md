@@ -3,4 +3,4 @@
 <p>OBS.: Projeto ainda em constante evolução, mas funcional. Favor, ajudar no projeto.</p>
 
 <h2>Processo de instalação</h2>
-<p><a href="/wiki">Veja a Wiki para a execução deste projeto por completo</a></p>
+<p><a href="https://github.com/joaoarquimedes/beerFreezer/wiki">Veja a Wiki para execução deste projeto por completo</a></p>
