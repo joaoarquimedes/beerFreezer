@@ -1,5 +1,15 @@
 #!/bin/bash
 
+### BEGIN INIT INFO
+# Provides:          beerFreezer.sh
+# Required-Start:    $local_fs $syslog
+# Required-Stop:     $local_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start beerFreezer.sh at boot time
+# Description:       Enable service provided by beerFreezer.sh.
+### END INIT INFO
+
 py="/usr/bin/python2"
 dr="/home/pi/beerFreezer/"
 bf="beerFreezer.py"
