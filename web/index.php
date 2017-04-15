@@ -121,13 +121,15 @@ if (! file_exists($fileJson)) {
             <div>
               <h3>
                 <?php if (end($result_status_do_freezer) == 0) : ?>
-                <span style="color:#cc3300; font-size: 30px; font-family: 'Crete Round', serif;"><i class="fa fa-power-off" aria-hidden="true"></i> OFF <small>
+                <span style="color:#cc3300; font-size: 30px; font-family: 'Crete Round', serif;"><i class="fa fa-power-off" aria-hidden="true"></i> OFF </span>
                 <small style="margin-left: 10px; font-size: 13px; font-family: 'PT Mono', monospace;">
-                <i class="fa fa-clock-o" aria-hidden="true"></i> <?=end($result_tempo_freezer_status)." ($countOFF)x"?></small>
+                <i class="fa fa-thermometer-half" aria-hidden="true"></i> <?=end($temperatura_termometro)?>°C | 
+                <i class="fa fa-clock-o" aria-hidden="true"></i> <?=end($result_tempo_freezer_status)?> | <?=$countOFF?>x</small>
                 <?php else : ?>
                 <span style="color:#00cc33; font-size: 30px; font-family: 'Crete Round', serif;"><i class="fa fa-power-off" aria-hidden="true"></i> ON </span>
                 <small style="margin-left: 10px; font-size: 13px; font-family: 'PT Mono', monospace;">
-                <i class="fa fa-clock-o" aria-hidden="true"></i> <?=end($result_tempo_freezer_status)." ($countON)x"?></small>
+                <i class="fa fa-thermometer-half" aria-hidden="true"></i> <?=end($temperatura_termometro)?>°C | 
+                <i class="fa fa-clock-o" aria-hidden="true"></i> <?=end($result_tempo_freezer_status)?> | <?=$countON?>x</small>
                 <?php endif ?>
               </h3>
             </div>
@@ -137,7 +139,7 @@ if (! file_exists($fileJson)) {
 
         <!-- Bar right -->
         <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12">
-          <p></p>
+          <div style="margin-top: 10px;"></div>
         </div>
         <!-- / Bar right -->
         <!-- / HEADER -->
