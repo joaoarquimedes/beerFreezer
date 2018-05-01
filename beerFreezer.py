@@ -194,7 +194,7 @@ try:
     countON = 0
     countOFF = 0
     while True:
-        if config.getThermometerMod == "COLD":
+        if conf.getThermometerMod() in 'COLD':
             print(" ******** Condicao COLD **********")
             if thermometerNOW() > conf.getThermometerMax() and freezerNOW() == 0 and mytime.getTimeNow() > mytime.getTimeNextFreezerON():
                 freezerON()
@@ -220,8 +220,9 @@ try:
                 freezerState = "ON"
                 countONOFF = mytime.getManyTimesFreezerON()
 
-        if config.getThermometerMod == "HOT":
+        if conf.getThermometerMod() in 'HOT':
             print(" ******** Condicao HOT **********")
+
 
         json_data = {
             "data" : mytime.getTimeHour(),
@@ -233,7 +234,6 @@ try:
             "tempo freezer status" : mytime.getTimeNextFreezerKeepONOFF()
         }
 
-        print()
         print(" ----------------------- BeerFreezer ----------------------")
         print(" -> Modo de trabalho...........................", str(conf.getThermometerMod()))
         print(" -> Temperatura setado.........................", str(conf.getThermometerSet()))
