@@ -223,13 +223,13 @@ try:
                 message = "Temperatura em " + str(thermometerNOW()) + "°C. Aquecedor ligado"
                 writeLog(message)
 
-            if thermometerNOW() > conf.getThermometerMax() and freezerNOW() == 1:
+            if thermometerNOW() > conf.getThermometerSet() and freezerNOW() == 1:
                 mytime.setTimeNextFreezerON(conf.getFreezerTimeMinON())
                 freezerOFF()
                 countOFF += 1
                 mytime.setManyTimesFreezerOFF(countOFF)
                 mytime.setTimeNextFreezerKeepONOFF()
-                message = "Temperatura em " + str(thermometerNOW()) + "°C. Aquecedor desligado. Aquecedor poderá ser ligado após " + str(mytime.getTimeNextFreezerON())
+                message = "Temperatura em " + str(thermometerNOW()) + "°C. Aquecedor desligado."
                 writeLog(message)
 
         if freezerNOW() == 0:
