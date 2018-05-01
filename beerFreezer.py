@@ -26,6 +26,11 @@ class Config():
     def getVersion(self):
         return self.version
 
+    def setThermometerMod(self, thermometerMod):
+	self.thermometerMod = thermometerMod
+    def getThermometerMod(self):
+	return self.thermometerMod
+
     def setThermometerSet(self, thermometerSet):
         self.thermometerSet = thermometerSet
     def getThermometerSet(self):
@@ -49,6 +54,7 @@ class Config():
 
 conf = Config()
 conf.setVersion(configParser.get('VERSION', 'version'))
+conf.setThermometerMod(configParser.get('GLOBAL', 'THER_MOD'))
 conf.setThermometerSet(float(configParser.get('GLOBAL', 'THER_SET')))
 conf.setThermometerMax(float(configParser.get('GLOBAL', 'THER_VAR_UP')))
 conf.setThermometerMin(float(configParser.get('GLOBAL', 'THER_VAR_DOWN')))
@@ -224,6 +230,7 @@ try:
 
         print()
         print(" ----------------------- BeerFreezer ----------------------")
+        print(" -> Modo de trabalho...........................", str(conf.getThermometerMod()))
         print(" -> Temperatura setado.........................", str(conf.getThermometerSet()))
         print(" -> Variacao da temperatura para mais..........", str(conf.getThermometerMax()))
         print(" -> Variacao da temperatura para menos.........", str(conf.getThermometerMin()))
@@ -241,35 +248,17 @@ try:
 
         # Escrevendo no display        
         mylcd.lcd_clear()
-        loop = 25
+        loop = 5
         for x in range(0, loop):
             mylcd.lcd_display_string("  Thermometer  ", 1)
             mylcd.lcd_display_string("     " + str(thermometerNOW()) + "\337C", 2)
             sleep(2)
 
         mylcd.lcd_clear()
-        loop = 12
-        for x in range(0, loop):
-            mylcd.lcd_display_string("   " + str(mytime.getTimeDay()), 1)
-            mylcd.lcd_display_string("    " + str(mytime.getTimeHour()), 2)
-            sleep(1)
-
-        mylcd.lcd_clear()
-        loop = 7
-        for x in xrange(0,loop):
-            mylcd.lcd_display_string("Freezer: " + str(freezerState) + "  " + str(countONOFF) + "x", 1)
-            mylcd.lcd_display_string(str(mytime.getTimeNextFreezerKeepONOFF()), 2)
-            sleep(1)
-
-        if thermometerNOW() > conf.getThermometerMax() and freezerNOW() == 0 and mytime.getTimeNow() < mytime.getTimeNextFreezerON():
-            mylcd.lcd_display_string("Allow Freezer ON" + str(freezerState), 1)
-            mylcd.lcd_display_string(str(mytime.getTimeNextFreezerON()), 2)
-            sleep(5)
-
-        mylcd.lcd_clear()
         mylcd.lcd_display_string("Reload...", 1)
 
         # Lendo novamente as configurações do arquivo
+        configParser.read(config_file)
         conf.setVersion(configParser.get('VERSION', 'version'))
         conf.setThermometerSet(float(configParser.get('GLOBAL', 'THER_SET')))
         conf.setThermometerMax(float(configParser.get('GLOBAL', 'THER_VAR_UP')))

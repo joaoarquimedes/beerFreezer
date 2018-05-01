@@ -1,5 +1,5 @@
 <?php
-$limitPrint = 60;
+$limitPrint = 280;
 $fileJson = "report/beerFreezer.json";
 $alert = null;
 
