@@ -213,16 +213,31 @@ try:
                 message = "Temperatura em " + str(thermometerNOW()) + "°C. Freezer desligado. Freezer poderá ser ligado após " + str(mytime.getTimeNextFreezerON())
                 writeLog(message)
 
-            if freezerNOW() == 0:
-                freezerState = "OFF"
-                countONOFF = mytime.getManyTimesFreezerOFF()
-            else:
-                freezerState = "ON"
-                countONOFF = mytime.getManyTimesFreezerON()
-
         if conf.getThermometerMod() in 'HOT':
             print(" ******** Condicao HOT **********")
+            if thermometerNOW() < conf.getThermometerMin() and freezerNOW() == 0:
+                freezerON()
+                mytime.setTimeNextFreezerKeepONOFF()
+                countON += 1
+                mytime.setManyTimesFreezerON(countON)
+                message = "Temperatura em " + str(thermometerNOW()) + "°C. Aquecedor ligado"
+                writeLog(message)
 
+            if thermometerNOW() > conf.getThermometerMax() and freezerNOW() == 1:
+                mytime.setTimeNextFreezerON(conf.getFreezerTimeMinON())
+                freezerOFF()
+                countOFF += 1
+                mytime.setManyTimesFreezerOFF(countOFF)
+                mytime.setTimeNextFreezerKeepONOFF()
+                message = "Temperatura em " + str(thermometerNOW()) + "°C. Aquecedor desligado. Aquecedor poderá ser ligado após " + str(mytime.getTimeNextFreezerON())
+                writeLog(message)
+
+        if freezerNOW() == 0:
+            freezerState = "OFF"
+            countONOFF = mytime.getManyTimesFreezerOFF()
+        else:
+            freezerState = "ON"
+            countONOFF = mytime.getManyTimesFreezerON()
 
         json_data = {
             "data" : mytime.getTimeHour(),
