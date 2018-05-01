@@ -27,9 +27,9 @@ class Config():
         return self.version
 
     def setThermometerMod(self, thermometerMod):
-	self.thermometerMod = thermometerMod
+	   self.thermometerMod = thermometerMod
     def getThermometerMod(self):
-	return self.thermometerMod
+	   return self.thermometerMod
 
     def setThermometerSet(self, thermometerSet):
         self.thermometerSet = thermometerSet
@@ -194,29 +194,34 @@ try:
     countON = 0
     countOFF = 0
     while True:
-        if thermometerNOW() > conf.getThermometerMax() and freezerNOW() == 0 and mytime.getTimeNow() > mytime.getTimeNextFreezerON():
-            freezerON()
-            mytime.setTimeNextFreezerKeepONOFF()
-            countON += 1
-            mytime.setManyTimesFreezerON(countON)
-            message = "Temperatura em " + str(thermometerNOW()) + "°C. Freezer ligado"
-            writeLog(message)
+        if config.getThermometerMod == "COLD":
+            print(" ******** Condicao COLD **********")
+            if thermometerNOW() > conf.getThermometerMax() and freezerNOW() == 0 and mytime.getTimeNow() > mytime.getTimeNextFreezerON():
+                freezerON()
+                mytime.setTimeNextFreezerKeepONOFF()
+                countON += 1
+                mytime.setManyTimesFreezerON(countON)
+                message = "Temperatura em " + str(thermometerNOW()) + "°C. Freezer ligado"
+                writeLog(message)
 
-        if thermometerNOW() < conf.getThermometerMin() and freezerNOW() == 1:
-            mytime.setTimeNextFreezerON(conf.getFreezerTimeMinON())
-            freezerOFF()
-            countOFF += 1
-            mytime.setManyTimesFreezerOFF(countOFF)
-            mytime.setTimeNextFreezerKeepONOFF()
-            message = "Temperatura em " + str(thermometerNOW()) + "°C. Freezer desligado. Freezer poderá ser ligado após " + str(mytime.getTimeNextFreezerON())
-            writeLog(message)
+            if thermometerNOW() < conf.getThermometerMin() and freezerNOW() == 1:
+                mytime.setTimeNextFreezerON(conf.getFreezerTimeMinON())
+                freezerOFF()
+                countOFF += 1
+                mytime.setManyTimesFreezerOFF(countOFF)
+                mytime.setTimeNextFreezerKeepONOFF()
+                message = "Temperatura em " + str(thermometerNOW()) + "°C. Freezer desligado. Freezer poderá ser ligado após " + str(mytime.getTimeNextFreezerON())
+                writeLog(message)
 
-        if freezerNOW() == 0:
-            freezerState = "OFF"
-            countONOFF = mytime.getManyTimesFreezerOFF()
-        else:
-            freezerState = "ON"
-            countONOFF = mytime.getManyTimesFreezerON()
+            if freezerNOW() == 0:
+                freezerState = "OFF"
+                countONOFF = mytime.getManyTimesFreezerOFF()
+            else:
+                freezerState = "ON"
+                countONOFF = mytime.getManyTimesFreezerON()
+
+        if config.getThermometerMod == "HOT":
+            print(" ******** Condicao HOT **********")
 
         json_data = {
             "data" : mytime.getTimeHour(),

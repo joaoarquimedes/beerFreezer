@@ -1,6 +1,11 @@
 # Arquivo de configuração
 
 [GLOBAL]
+# Qual modo deseja trabalhar, quente (HOT) ou frio (COLD)?
+# COLD = freezer
+# HOT = Aquecedor
+THER_MOD = COLD
+
 # Qual a temperatura que deseja manter (em Celsius)?
 # Exemplo: 12.0 (doze graus celsius)
 THER_SET = 19.0
