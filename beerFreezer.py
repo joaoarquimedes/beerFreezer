@@ -280,6 +280,7 @@ try:
         # Lendo novamente as configurações do arquivo
         configParser.read(config_file)
         conf.setVersion(configParser.get('VERSION', 'version'))
+        conf.setThermometerMod(configParser.get('GLOBAL', 'THER_MOD'))
         conf.setThermometerSet(float(configParser.get('GLOBAL', 'THER_SET')))
         conf.setThermometerMax(float(configParser.get('GLOBAL', 'THER_VAR_UP')))
         conf.setThermometerMin(float(configParser.get('GLOBAL', 'THER_VAR_DOWN')))
