@@ -76,7 +76,7 @@ import RPi_I2C_driver
 from RPi_I2C_driver import *
 
 mylcd = RPi_I2C_driver.lcd()
-# Exemplos LCD (escrrver no máximo 16 caracteres):
+# Exemplos LCD (escrever no máximo 16 caracteres):
 # Escrevendo na linha 1
 # mylcd.lcd_display_string("RPi I2C test   ", 1)
 # Escrevendo na linha 2
@@ -268,6 +268,13 @@ try:
 
         mylcd.lcd_clear()
         mylcd.lcd_display_string("Reload...", 1)
+
+        # Lendo novamente as configurações do arquivo
+        conf.setVersion(configParser.get('VERSION', 'version'))
+        conf.setThermometerSet(float(configParser.get('GLOBAL', 'THER_SET')))
+        conf.setThermometerMax(float(configParser.get('GLOBAL', 'THER_VAR_UP')))
+        conf.setThermometerMin(float(configParser.get('GLOBAL', 'THER_VAR_DOWN')))
+        conf.setFreezerTimeMinON(int(configParser.get('GLOBAL', 'FREEZER_TIME_MINIMAL_ON')))
 
 except KeyboardInterrupt: # If there is a KeyboardInterrupt (when you press ctrl+c), exit the program and cleanup
     print(" .... Stopping beeFreezer!")
